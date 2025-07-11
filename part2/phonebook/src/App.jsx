@@ -1,4 +1,7 @@
 import { useState } from 'react'
+import Persons from './components/Persons'
+import Filter from './components/Filter'
+import PersonForm from './components/PersonForm'
 
 const App = () => {
   const [persons, setPersons] = useState([
@@ -7,43 +10,16 @@ const App = () => {
     { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
     { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 }
   ])
-  const [filtered, setFiltered] = useState(persons)
-  const [newName, setNewName] = useState('')
-  const [newNumber, setNewNumber] = useState('')
-
-  const addPerson = (event) => {
-    event.preventDefault()
-    persons.some(person=> person.name===newName)
-    ? alert(newName + " is already added to phonebook")
-    : (setPersons(persons.concat({name:newName, number:newNumber, id:persons.length+1})), setNewName(''), setNewNumber(''))
-  }
+  const [filter, setFilter] = useState('')
 
   return (
     <div>
       <h2>Phonebook</h2>
-      <form>
-        filter numbers with <input onChange={event => setFiltered(
-          persons.filter(
-            person => person.name.toLowerCase().includes(event.target.value.toLowerCase())
-          )
-        )}/>
-      </form>
+      <Filter setFilter={setFilter} />
       <h2>add a new</h2>
-      <form onSubmit={addPerson} >
-        <div>
-          Name: <input value={newName} onChange={(event)=>setNewName(event.target.value)} />
-        </div>
-        <div>
-          Number: <input value={newNumber} onChange={(event)=>setNewNumber(event.target.value)} />
-        </div>
-        <div>
-          <button type="submit">add</button>
-        </div>
-      </form>
+      <PersonForm persons={persons} setPersons={setPersons} />
       <h2>Numbers</h2>
-      <ul>
-        {filtered.map(person=> <li key={person.name} >{person.name} {person.number} </li> )}
-      </ul>
+      <Persons filter={filter} persons={persons} />
     </div>
   )
 }
