@@ -12,12 +12,18 @@ const PersonForm = ({persons,setPersons}) => {
                 id:String(persons.length+1)
             }
 
-            persons.some(person=> person.name===newPerson.name)
-            ? alert(newPerson.name + " is already added to phonebook")
-            : (
+            const somePerson = persons.filter(person=> person.name===newPerson.name)
+
+            if (somePerson.length!==0){
+                if (confirm(newPerson.name+" is already added to phonebook, replace the old number with a new one?")) {
+                    somePerson[0]={...somePerson[0],number:newPerson.number}
+                    services.update(somePerson[0].id,somePerson[0])
+                    setPersons(persons.map(person=>person.id!==somePerson[0].id?person:somePerson[0]))
+                }
+            }else {
                 setPersons(persons.concat(newPerson)),
                 services.create(newPerson)
-            )
+            }
         }
     } >
         <div>
