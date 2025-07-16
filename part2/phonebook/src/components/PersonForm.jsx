@@ -1,16 +1,22 @@
 import React from 'react'
-import axios from 'axios'
+import services from '../services/persons'
 
 const PersonForm = ({persons,setPersons}) => {
   return (
     <form onSubmit={
         (e) => {
             e.preventDefault()
-            persons.some(person=> person.name===e.target.name.value)
-            ? alert(e.target.name.value + " is already added to phonebook")
+            const newPerson = {
+                name:e.target.name.value,
+                number:e.target.number.value,
+                id:String(persons.length+1)
+            }
+
+            persons.some(person=> person.name===newPerson.name)
+            ? alert(newPerson.name + " is already added to phonebook")
             : (
-                setPersons(persons.concat({name:e.target.name.value, number:e.target.number.value, id:persons.length+1})),
-                axios.post('http://localhost:3001/persons', {name:e.target.name.value, number:e.target.number.value, id:String(persons.length+1)})
+                setPersons(persons.concat(newPerson)),
+                services.create(newPerson)
             )
         }
     } >
