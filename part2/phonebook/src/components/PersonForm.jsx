@@ -24,6 +24,14 @@ const PersonForm = ({persons,setPersons,setNotification}) => {
                                 setNotification(null)
                             },5000)
                         })
+                        .catch(error => {
+                            setNotification({message:`[ERROR] ${updatedPerson.name} was already deleted from server`,color:"red"})
+                            setPersons(persons.filter(person => person.id !== updatedPerson.id))
+                            setTimeout(() => {
+                                setMessage(null)
+                            }, 5000)
+                            console.log(error.response.data)
+                        })
                 }
             }else {
                 services.create(newPerson)
@@ -33,6 +41,13 @@ const PersonForm = ({persons,setPersons,setNotification}) => {
                         setTimeout(()=>{
                             setNotification(null)
                         },5000)
+                    })
+                    .catch(error => {
+                        setNotification({message:`[ERROR] ${error.response.data.error}`,color:"red"})
+                        setTimeout(() => {
+                            setMessage(null)
+                        }, 5000)
+                        console.log(error.response.data)
                     })
             }
         }
