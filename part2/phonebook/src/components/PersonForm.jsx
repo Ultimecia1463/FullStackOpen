@@ -1,28 +1,39 @@
 import React from 'react'
 import services from '../services/persons'
 
-const PersonForm = ({persons,setPersons}) => {
+const PersonForm = ({persons,setPersons,setNotification}) => {
   return (
     <form onSubmit={
         (e) => {
             e.preventDefault()
             const newPerson = {
                 name:e.target.name.value,
-                number:e.target.number.value,
-                id:String(persons.length+1)
+                number:e.target.number.value
             }
 
             const somePerson = persons.filter(person=> person.name===newPerson.name)
 
             if (somePerson.length!==0){
                 if (confirm(newPerson.name+" is already added to phonebook, replace the old number with a new one?")) {
-                    somePerson[0]={...somePerson[0],number:newPerson.number}
-                    services.update(somePerson[0].id,somePerson[0])
-                    setPersons(persons.map(person=>person.id!==somePerson[0].id?person:somePerson[0]))
+                    const updatedPerson = { ...somePerson[0], number: newPerson.number };
+                    services.update(updatedPerson.id, updatedPerson)
+                        .then(returnedPerson => {
+                            setPersons(persons.map(person => person.id !== returnedPerson.id ? person : returnedPerson))
+                            setNotification({message:returnedPerson.name + " was updated",color:"green"})
+                            setTimeout(()=>{
+                                setNotification(null)
+                            },5000)
+                        })
                 }
             }else {
-                setPersons(persons.concat(newPerson)),
                 services.create(newPerson)
+                    .then(returnedPerson => {
+                        setPersons(persons.concat(returnedPerson))
+                        setNotification({message:returnedPerson.name + " was added",color:"green"})
+                        setTimeout(()=>{
+                            setNotification(null)
+                        },5000)
+                    })
             }
         }
     } >
