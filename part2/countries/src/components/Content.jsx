@@ -1,7 +1,21 @@
-import React from 'react'
+import  { useState,useEffect } from 'react'
 import Country from './Country'
 
 const Content = ({countries}) => {
+  const [selectedCountry, setSelectedCountry] = useState(null);
+
+  useEffect(() => {
+    if (countries.length === 1) {
+      setSelectedCountry(countries[0])
+    } else {
+      setSelectedCountry(null)
+    }
+  }, [countries])
+
+  if (selectedCountry) {
+    return <Country country={selectedCountry} />;
+  }
+
   if (countries.length > 10) {
     return (
       <p>
@@ -12,14 +26,15 @@ const Content = ({countries}) => {
     return (
       <ul>
         {countries.map((country, i) =>
-          <li key={i}> {country.name} </li>
+          <li key={i}>
+            {country.name} <button onClick={()=>setSelectedCountry(country)} >show</button>
+          </li>
         )}
       </ul>
     )
   } else {
-    return(
-      <Country country={countries[0]} />
-    )
+    setSelectedCountry(countries[0])
+    return null
   }
 }
 

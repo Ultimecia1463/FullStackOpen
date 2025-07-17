@@ -9,7 +9,7 @@ const App = () => {
 
   useEffect(()=>{
     axios
-      .get("https://studies.cs.helsinki.fi/restcountries/api/alle")
+      .get("https://studies.cs.helsinki.fi/restcountries/api/all")
       .then(res =>{
         const trimmed = res.data.map(({ name, capital, area, flags, languages }) => ({
           name: name.common,
