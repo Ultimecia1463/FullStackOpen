@@ -1,6 +1,7 @@
 require('dotenv').config()
 const express = require('express')
 const morgan = require('morgan');
+const mongoose = require('mongoose')
 const cors = require('cors')
 const Person = require("./models/Person")
 
@@ -26,35 +27,9 @@ app.use(
 
 app.use(express.static('dist'))
 
-let persons = [
-    { 
-      "id": "1",
-      "name": "Arto Hellas", 
-      "number": "040-123456"
-    },
-    { 
-      "id": "2",
-      "name": "Ada Lovelace", 
-      "number": "39-44-5323523"
-    },
-    { 
-      "id": "3",
-      "name": "Dan Abramov", 
-      "number": "12-43-234345"
-    },
-    { 
-      "id": "4",
-      "name": "Mary Poppendieck", 
-      "number": "39-23-6423122"
-    }
-]
-
-app.get('/', (request, response) => {
-  response.send('<h1>Phonebook</h1>')
-})
-
-app.get('/info', (request, response) => {
-  response.send(`<p>Phonebook has info for ${persons.length} people</p>` +
+app.get('/info', async (request, response) => {
+  const count = await Person.estimatedDocumentCount({})
+  response.send(`<p>Phonebook has info for ${count} people</p>` +
                `<p>${new Date()}</p>`)
 })
 
@@ -64,9 +39,14 @@ app.get('/api/persons', (request, response) => {
   })
 })
 
-app.get('/api/persons/:id', (request, response) => {
+app.get('/api/persons/:id', async (request, response) => {
   const id = request.params.id
-  const person = persons.find((person) => person.id === id)
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return response.status(400).json({ error: 'malformatted id' })
+  }
+
+  const person = await Person.findById(id)
 
   if (person) {
     response.json(person)
@@ -75,42 +55,45 @@ app.get('/api/persons/:id', (request, response) => {
   }
 })
 
-app.delete('/api/persons/:id', (request, response) => {
-  const id = request.params.id
-  persons = persons.filter((person) => person.id !== id)
-
+app.delete('/api/persons/:id', async (request, response) => {
+  if (! await Person.findById(request.params.id)) {
+    return response.status(400).json({
+      error: "The person not exists in the phonebook",
+    });
+  }
+  await Person.findByIdAndDelete(request.params.id)
   response.status(204).end()
 })
 
-function getRandomInt() {
-  return Math.floor(Math.random() * 10000).toString();
-}
+app.post('/api/persons', async (request, response) => {
+  const { name, number } = request.body
 
-app.post('/api/persons', (request, response) => {
-  const body = request.body
-
-  if (!body.name || !body.number) {
+  if (!name || !number) {
     return response.status(400).json({
-      error: 'content missing',
-    })
+      error: "The name or number is missing",
+    });
   }
 
-  if(persons.some(person => person.name === body.name)) {
-    return response.status(409).json({
-      error: 'name must be unique',
+  if(await Person.findOne({ name: name })) {
+    return response.status(400).json({
+      error: "The name already exists in the phonebook",
     })
   }
 
   const person = {
-    name: body.name,
-    number: body.number,
-    id: getRandomInt()
+    name,
+    number,
   }
-
-  persons = persons.concat(person)
-
-  response.json(person)
+  const newPerson = await new Person(person)
+  await newPerson.save()
+  response.json(newPerson)
 })
+
+const unknownEndpoint = (req, res) => {
+  res.status(404).send({ error: "unknown endpoint" });
+};
+
+app.use(unknownEndpoint);
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
