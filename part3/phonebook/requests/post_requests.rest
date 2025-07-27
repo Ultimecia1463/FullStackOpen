@@ -13,3 +13,13 @@ Content-Type: application/json
 {
     "number": "987-654-3210"
 }
+
+###
+
+PUT http://localhost:3001/api/persons/6885db9db1a140eed71edbb7 
+Content-Type: application/json
+
+{
+    "name": "john-doe",
+    "number": "123-456-7890"
+}

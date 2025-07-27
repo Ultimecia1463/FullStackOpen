@@ -42,10 +42,6 @@ app.get('/api/persons', (req, res, next) => {
 
 app.get('/api/persons/:id', (req, res, next) => {
   const id = req.params.id
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(400).json({ error: 'malformatted id' })
-  }
-
   Person.findById(id)
     .then(person => {
       if (person) res.json(person)
@@ -83,6 +79,31 @@ app.post('/api/persons', (req, res, next) => {
       return newPerson.save()
     })
     .then(saved => res.json(saved))
+    .catch(next)
+})
+
+app.put('/api/persons/:id', (req, res, next) => {
+  const { number } = req.body
+  const id = req.params.id
+
+  if (!number) {
+    return res.status(400).json({ error: 'number is missing' })
+  }
+
+  const update = { number }
+
+  Person.findByIdAndUpdate(id, update, {
+    new: true,
+    runValidators: true,
+    context: 'query'
+  })
+    .then(updatedPerson => {
+      if (updatedPerson) {
+        res.json(updatedPerson)
+      } else {
+        res.status(404).json({ error: 'person not found' })
+      }
+    })
     .catch(next)
 })
 
