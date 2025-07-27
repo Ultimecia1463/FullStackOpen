@@ -6,12 +6,12 @@ const cors = require('cors')
 const Person = require("./models/Person")
 
 const app = express()
-app.use(cors())
 
+app.use(cors())
 app.use(express.json())
+app.use(express.static('dist'))
 
 morgan.token('body', (req) => JSON.stringify(req.body))
-
 app.use(
   morgan(':method :url :status :res[content-length] - :response-time ms :body',
   {
@@ -25,75 +25,82 @@ app.use(
   }
 ))
 
-app.use(express.static('dist'))
-
-app.get('/info', async (request, response) => {
-  const count = await Person.estimatedDocumentCount({})
-  response.send(`<p>Phonebook has info for ${count} people</p>` +
-               `<p>${new Date()}</p>`)
+app.get('/info', (req, res, next) => {
+  Person.estimatedDocumentCount({})
+    .then(count => {
+      res.send(`<p>Phonebook has info for ${count} people</p><p>${new Date()}</p>`)
+    })
+    .catch(next)
 })
 
-app.get('/api/persons', (request, response) => {
-  Person.find({}).then((persons) => {
-    response.json(persons)
-  })
+
+app.get('/api/persons', (req, res, next) => {
+  Person.find({})
+    .then(persons => res.json(persons))
+    .catch(next)
 })
 
-app.get('/api/persons/:id', async (request, response) => {
-  const id = request.params.id
-
+app.get('/api/persons/:id', (req, res, next) => {
+  const id = req.params.id
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    return response.status(400).json({ error: 'malformatted id' })
+    return res.status(400).json({ error: 'malformatted id' })
   }
 
-  const person = await Person.findById(id)
-
-  if (person) {
-    response.json(person)
-  } else {
-    response.status(404).end()
-  }
+  Person.findById(id)
+    .then(person => {
+      if (person) res.json(person)
+      else res.status(404).end()
+    })
+    .catch(next)
 })
 
-app.delete('/api/persons/:id', async (request, response) => {
-  if (! await Person.findById(request.params.id)) {
-    return response.status(400).json({
-      error: "The person not exists in the phonebook",
-    });
-  }
-  await Person.findByIdAndDelete(request.params.id)
-  response.status(204).end()
+app.delete('/api/persons/:id', (req, res, next) => {
+  const id = req.params.id
+  Person.findByIdAndDelete(id)
+    .then(deleted => {
+      if (!deleted) {
+        return res.status(400).json({ error: 'The person does not exist in the phonebook' })
+      }
+      res.status(204).end()
+    })
+    .catch(next)
 })
 
-app.post('/api/persons', async (request, response) => {
-  const { name, number } = request.body
+app.post('/api/persons', (req, res, next) => {
+  const { name, number } = req.body
 
   if (!name || !number) {
-    return response.status(400).json({
-      error: "The name or number is missing",
-    });
+    return res.status(400).json({ error: 'The name or number is missing' })
   }
 
-  if(await Person.findOne({ name: name })) {
-    return response.status(400).json({
-      error: "The name already exists in the phonebook",
+  Person.findOne({ name })
+    .then(existing => {
+      if (existing) {
+        return res.status(400).json({ error: 'The name already exists in the phonebook' })
+      }
+
+      const newPerson = new Person({ name, number })
+      return newPerson.save()
     })
-  }
-
-  const person = {
-    name,
-    number,
-  }
-  const newPerson = await new Person(person)
-  await newPerson.save()
-  response.json(newPerson)
+    .then(saved => res.json(saved))
+    .catch(next)
 })
 
 const unknownEndpoint = (req, res) => {
   res.status(404).send({ error: "unknown endpoint" });
-};
+}
 
-app.use(unknownEndpoint);
+app.use(unknownEndpoint)
+
+app.use((err, req, res, next) => {
+  console.error(err.name, err.message)
+  if (err.name === 'CastError') {
+    return res.status(400).json({ error: 'malformatted id' })
+  } else if (err.name === 'ValidationError') {
+    return res.status(400).json({ error: err.message })
+  }
+  next(err)
+})
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
