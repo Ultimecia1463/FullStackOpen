@@ -1,9 +1,8 @@
 require('dotenv').config()
 const express = require('express')
-const morgan = require('morgan');
-const mongoose = require('mongoose')
+const morgan = require('morgan')
 const cors = require('cors')
-const Person = require("./models/Person")
+const Person = require('./models/Person')
 
 const app = express()
 
@@ -14,16 +13,16 @@ app.use(express.static('dist'))
 morgan.token('body', (req) => JSON.stringify(req.body))
 app.use(
   morgan(':method :url :status :res[content-length] - :response-time ms :body',
-  {
-    skip: (req) => req.method !== 'POST'
-  }
-))
+    {
+      skip: (req) => req.method !== 'POST'
+    }
+  ))
 app.use(
-  morgan('tiny', 
-  {
-    skip: (req) => req.method === 'POST'
-  }
-))
+  morgan('tiny',
+    {
+      skip: (req) => req.method === 'POST'
+    }
+  ))
 
 app.get('/info', (req, res, next) => {
   Person.estimatedDocumentCount({})
@@ -108,7 +107,7 @@ app.put('/api/persons/:id', (req, res, next) => {
 })
 
 const unknownEndpoint = (req, res) => {
-  res.status(404).send({ error: "unknown endpoint" });
+  res.status(404).send({ error: 'unknown endpoint' })
 }
 
 app.use(unknownEndpoint)
