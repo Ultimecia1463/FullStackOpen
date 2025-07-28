@@ -18,7 +18,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      <Notification notification={notification} />
+      <Notification notification={notification} setNotification={setNotification} />
       <Filter setFilter={setFilter} />
       <h2>add a new</h2>
       <PersonForm persons={persons} setPersons={setPersons} setNotification={setNotification} />
