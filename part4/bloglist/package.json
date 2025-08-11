@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "node --test",
-    "dev": "node --watch index.js",
-    "start": "node index.js",
+    "test": "NODE_ENV=test node --test",
+    "dev": "NODE_ENV=development node --watch index.js",
+    "start": "NODE_ENV=production node index.js",
     "lint": "eslint ."
   },
   "keywords": [],
@@ -18,5 +18,8 @@
     "lodash": "^4.17.21",
     "mongoose": "^8.16.5",
     "morgan": "^1.10.1"
+  },
+  "devDependencies": {
+    "supertest": "^7.1.4"
   }
 }
