@@ -4,6 +4,13 @@ const usersRouter = require('express').Router()
 
 usersRouter.post('/', async (request, response) => {
   const { username, name, password } = request.body
+
+  if (!username || username.length < 3) {
+    return response.status(400).json({ error: "Username missing or shorter than 3 symbols" })
+  } else if (!password || password.length < 3) {
+    return response.status(400).json({ error: "Password missing or shorter than 3 symbols" })
+  }
+
   const passwordHash = await bcrypt.hash(password, 10)
   const user = new User({
     username,

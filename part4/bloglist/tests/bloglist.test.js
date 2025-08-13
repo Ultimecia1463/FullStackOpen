@@ -1,10 +1,11 @@
 const assert = require('node:assert')
-const { test, after, beforeEach } = require('node:test')
+const { test, after, beforeEach, describe } = require('node:test')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
 const Blog = require('../models/blog')
-const { log } = require('node:console')
+const bcrypt = require("bcrypt")
+const User = require("../models/user")
 
 const api = supertest(app)
 const blogs = [
@@ -139,6 +140,71 @@ test('blog can be updated', async () => {
     .expect(200)
     .expect('Content-Type', /application\/json/)
   assert.strictEqual(response.body.likes, updatedBlog.likes, 'Likes were not updated correctly')
+})
+
+describe('user tests', () => {
+  const initialUsers = [
+    {
+      username: 'testuser1',
+      name: 'Test User 1',
+      password: 'password123'
+    },
+    {
+      username: 'testuser2',
+      name: 'Test User 2',
+      password: 'password456'
+    }
+  ]
+
+  beforeEach(async () => {
+    await User.deleteMany({})
+    const hashedUsers = await Promise.all(
+      initialUsers.map(async user => ({
+        username: user.username,
+        name: user.name,
+        passwordHash: await bcrypt.hash(user.password, 10)
+      }))
+    )
+    await User.insertMany(hashedUsers)
+  })
+
+  test('all users are retured', async () => {
+    const response = await api.get('/api/users')
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+    
+    assert.strictEqual(response.body.length, initialUsers.length, 'User count does not match')
+  })
+
+  test('user can be added', async () => {
+    const newUser = {
+      username: 'newuser',
+      name: 'New User',
+      password: 'newpassword'
+    }
+
+    const response = await api.post('/api/users')
+      .send(newUser)
+      .expect(201)
+      .expect('Content-Type', /application\/json/)
+    
+    assert.ok(response.body.id, 'New user does not have an id')
+    assert.strictEqual(response.body.username, newUser.username, 'Username does not match')
+  })
+
+  test('invalid users are not created', async () => {
+    const invalidUser = {
+      username: 'nu',
+      name: 'Invalid User',
+      password: 'pw'
+    }
+
+    const response = await api.post('/api/users')
+      .send(invalidUser)
+      .expect(400)
+      .expect('Content-Type', /application\/json/)
+    assert.strictEqual(response.body.error, 'Username missing or shorter than 3 symbols', 'Error message does not match')
+  })
 })
 
 after(async () => {
