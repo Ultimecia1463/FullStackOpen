@@ -30,13 +30,19 @@ const initialBlogs = [
   }
 ]
 
+const initialUser = {
+  username: 'testuser',
+  name: 'Test User',
+  password: 'testpass'
+}
+
 describe('blog tests', () => {
   beforeEach(async () => {
     await Blog.deleteMany({})
     await User.deleteMany({})
 
-    const passwordHash = await bcrypt.hash('testpass', 10)
-    const user = new User({ username: 'testuser', name: 'Test User', passwordHash })
+    const passwordHash = await bcrypt.hash(initialUser.password, 10)
+    const user = new User({ username: initialUser.username , name: initialUser.name, passwordHash })
     const savedUser = await user.save()
 
     const blogsWithUser = initialBlogs.map(blog => ({ ...blog, user: savedUser._id }))
@@ -62,6 +68,8 @@ describe('blog tests', () => {
   })
 
   test('blog can be added', async () => {
+    const token = (await api.post('/api/users/login' )
+      .send(initialUser)).body.token
     const newBlog = {
       title: 'New Blog',
       author: 'New Author',
@@ -70,6 +78,7 @@ describe('blog tests', () => {
     }
 
     await api.post('/api/blogs')
+      .set("authorization", `Bearer ${token}`)
       .send(newBlog)
       .expect(201)
       .expect('Content-Type', /application\/json/)
@@ -80,12 +89,15 @@ describe('blog tests', () => {
   })
 
   test('blog without likes defaults to 0', async () => {
+    const token = (await api.post('/api/users/login' )
+      .send(initialUser)).body.token
     const newBlog = {
       title: 'Blog without likes',
       author: 'Author',
       url: 'http://nolikes.com'
     }
     const response = await api.post('/api/blogs')
+      .set("authorization", `Bearer ${token}`)
       .send(newBlog)
       .expect(201)
       .expect('Content-Type', /application\/json/)
@@ -94,10 +106,13 @@ describe('blog tests', () => {
   })
 
   test('blog without title or url returns 400', async () => {
+    const token = (await api.post('/api/users/login' )
+      .send(initialUser)).body.token
     const newBlog = {
       author: 'some Author',
     }
     await api.post('/api/blogs')
+      .set("authorization", `Bearer ${token}`)
       .send(newBlog)
       .expect(400)
       .expect('Content-Type', /application\/json/)
@@ -116,7 +131,7 @@ describe('blog tests', () => {
   test('blog can be updated', async () => {
     const blogsAtStart = await api.get('/api/blogs')
     const blogToUpdate = blogsAtStart.body[0]
-    const updatedBlog = { ...blogToUpdate, likes: blogToUpdate.likes + 1 }
+    const updatedBlog = { likes: blogToUpdate.likes + 1 }
 
     const response = await api.put(`/api/blogs/${blogToUpdate.id}`)
       .send(updatedBlog)
@@ -153,14 +168,14 @@ describe('user tests', () => {
     assert.strictEqual(response.body.length, initialUsers.length)
   })
 
-  test('user can be added', async () => {
+  test('user can be registered', async () => {
     const newUser = {
       username: 'newuser',
       name: 'New User',
       password: 'newpassword'
     }
 
-    const response = await api.post('/api/users')
+    const response = await api.post('/api/users/register')
       .send(newUser)
       .expect(201)
       .expect('Content-Type', /application\/json/)
@@ -176,7 +191,7 @@ describe('user tests', () => {
       password: 'pw'
     }
 
-    const response = await api.post('/api/users')
+    const response = await api.post('/api/users/register')
       .send(invalidUser)
       .expect(400)
       .expect('Content-Type', /application\/json/)
