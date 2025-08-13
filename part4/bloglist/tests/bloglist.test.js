@@ -198,6 +198,22 @@ describe('user tests', () => {
 
     assert.strictEqual(response.body.error, 'Username missing or shorter than 3 symbols')
   })
+
+  test('user can log in', async () => {
+
+    await api.post('/api/users/register')
+      .send(initialUser)
+      .expect(201)
+      .expect('Content-Type', /application\/json/)
+
+    const response = await api.post('/api/users/login')
+      .send(initialUser)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+
+    assert.ok(response.body.token)
+    assert.strictEqual(response.body.username, initialUser.username)
+  })
 })
 
 after(async () => {
