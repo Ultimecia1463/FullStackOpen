@@ -121,8 +121,12 @@ describe('blog tests', () => {
   test('blog can be deleted', async () => {
     const blogsAtStart = await api.get('/api/blogs')
     const blogToDelete = blogsAtStart.body[0]
+    const token = (await api.post('/api/users/login' )
+      .send(initialUser)).body.token
 
-    await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204)
+    await api.delete(`/api/blogs/${blogToDelete.id}`)
+      .set("authorization", `Bearer ${token}`)
+      .expect(204)
 
     const blogsAtEnd = await api.get('/api/blogs')
     assert.strictEqual(blogsAtEnd.body.length, initialBlogs.length - 1)
