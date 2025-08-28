@@ -4,7 +4,7 @@ const config = require('./config')
 const User = require('../models/user')
 
 const requestLogger = (request, response, next) => {
-  logger.info(`${request.method} ${request.originalUrl} ${response.statusCode} - ${Object.keys(request.body || {}).length ? `Body: ${JSON.stringify(request.body)}` : ''}`)
+  logger.info(`${Object.keys(request.body || {}).length ? `-----Body: ${JSON.stringify(request.body)}` : ''}`)
   next()
 }
 

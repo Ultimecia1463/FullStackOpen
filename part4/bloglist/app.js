@@ -5,6 +5,7 @@ const logger = require('./utils/logger')
 const middleware = require('./utils/middleware')
 const notesRouter = require('./controllers/blogs')
 const usersRouter = require('./controllers/users')
+const morgan = require('morgan')
 
 const app = express()
 
@@ -21,6 +22,7 @@ mongoose
 
 app.use(express.static('dist'))
 app.use(express.json())
+app.use(morgan('dev'))
 app.use(middleware.requestLogger)
 app.use(middleware.tokenExtractor)
 
