@@ -1,12 +1,10 @@
 import { useState, useEffect } from 'react'
-import Blog from './components/Blog'
+import BlogList from './components/BlogList'
 import blogService from './services/blogs'
-import loginService from './services/login'
+import LoginForm from './components/LoginForm'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
 
   useEffect(() => {
@@ -25,66 +23,14 @@ const App = () => {
     }
   }, [])
 
-  const handleLogin = async (event) => {
-    event.preventDefault()
-    try {
-      const user = await loginService.login({ username, password })
-      setUser(user)
-      setUsername('')
-      setPassword('')
-      blogService.setToken(user.token)
-      window.localStorage.setItem(
-        'loggedinUser', JSON.stringify(user)
-      )
-    } catch (e) {
-      console.log(e)
-    }
-  }
-
-  if (user === null) {
-    return (
-      <div>
-        <h2>Log in to application</h2>
-        <form onSubmit={handleLogin} >
-          <div>
-            <label>
-              username
-              <input
-                type='text'
-                value={username}
-                onChange={({target})=> setUsername(target.value)}
-              />
-            </label>
-          </div>
-          <div>
-            <label>
-              password
-              <input
-                type='password'
-                value={password}
-                onChange={({target})=> setPassword(target.value)}
-              />
-            </label>
-          </div>
-          <button type='submit' >login</button>
-        </form>
-      </div>
-    )
-  }
-
   return (
-    <div>
-      <h2>blogs</h2>
-      <p>{user.username} logged in <button onClick={
-        ()=>{
-          setUser(null)
-          window.localStorage.clear()
-        }
-      }>logout</button></p>
-      {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
-      )}
-    </div>
+    <>
+      {
+        (user===null) ?
+        <LoginForm setUser={setUser} /> :
+        <BlogList blogs={blogs} user={user} setUser={setUser} setBlogs={setBlogs} />
+      }
+    </>
   )
 }
 
