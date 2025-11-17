@@ -1,34 +1,24 @@
 import { useState } from 'react'
-import loginService from '../services/login'
-import blogService from '../services/blogs'
-import Notification from './Notification'
 
-const LoginForm = ({setUser}) => {
+const LoginForm = ({login}) => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [message, setMessage] = useState('')
 
   const handleLogin = async (event) => {
     event.preventDefault()
-    try {
-      const user = await loginService.login({ username, password })
-      setUser(user)
-      setUsername('')
-      setPassword('')
-      blogService.setToken(user.token)
-      window.localStorage.setItem(
-        'loggedinUser', JSON.stringify(user)
-      )
-    } catch (e) {
-      console.log(e.message)
-      setMessage(`error : ${e.response.data.error}`)
+    const userObject = {
+      username: username,
+      password: password
     }
+    login(userObject)
+    setUsername('')
+    setPassword('')
+  
   }
 
   return (
     <>
       <h2>Log in to application</h2>
-      <Notification message={message} setMessage={setMessage} />
       <form onSubmit={handleLogin} >
         <div>
           <label>

@@ -1,13 +1,10 @@
-import { useState, useRef } from "react"
+import { useRef } from "react"
 import Blog from "./Blog"
 import blogService from '../services/blogs'
-import Notification from "./Notification"
 import Togglable from "./Togglable"
 import BlogForm from "./BlogForm"
 
-const BlogList = ({blogs, user, setUser, setBlogs}) => {
-
-  const [message, setMessage] = useState('')
+const BlogList = ({blogs, user, setUser, setBlogs, setMessage}) => {
 
   const blogFormRef = useRef()
 
@@ -27,7 +24,6 @@ const BlogList = ({blogs, user, setUser, setBlogs}) => {
   return (
     <>
       <h2>blogs</h2>
-      <Notification message={message} setMessage={setMessage} />
       <p>{user.username} logged in <button onClick={
         ()=>{
           setUser(null)
