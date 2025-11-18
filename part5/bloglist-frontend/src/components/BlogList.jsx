@@ -21,6 +21,14 @@ const BlogList = ({blogs, user, setUser, setBlogs, setMessage}) => {
       })
   }
 
+  const updateBlog = (id, updatedBlog) => {
+    blogService
+      .update(id, updatedBlog)
+      .then(returnedBlog => {
+        setBlogs(blogs.map(b => b.id !== id ? b : returnedBlog))
+      })
+  }
+
   return (
     <>
       <h2>blogs</h2>
@@ -34,7 +42,7 @@ const BlogList = ({blogs, user, setUser, setBlogs, setMessage}) => {
         <BlogForm addBlog={addBlog} />
       </Togglable>
       {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
+        <Blog key={blog.id} blog={blog} updateBlog={updateBlog} />
       )}
     </>
   )
