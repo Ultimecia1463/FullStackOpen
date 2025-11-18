@@ -14,7 +14,7 @@ const App = () => {
     blogService.getAll().then(blogs =>
       setBlogs( blogs )
     )
-    
+
   }, [])
 
   useEffect(() => {
@@ -25,7 +25,7 @@ const App = () => {
       blogService.setToken(user.token)
     }
   }, [])
-  
+
   const login = async (userObject) => {
     try {
       const user = await loginService.login(userObject)
@@ -37,10 +37,10 @@ const App = () => {
       setUser(user)
     // eslint-disable-next-line no-unused-vars
     } catch (e) {
-      setMessage("error wrong username or password")
+      setMessage('error wrong username or password')
       setTimeout(() => {
         setMessage(null)
-      }, 5000);
+      }, 5000)
     }
   }
 
@@ -49,8 +49,8 @@ const App = () => {
       <Notification message={message} setMessage={setMessage} />
       {
         (user===null) ?
-        <LoginForm login={login} /> :
-        <BlogList blogs={blogs} user={user} setUser={setUser} setBlogs={setBlogs} setMessage={setMessage} />
+          <LoginForm login={login} /> :
+          <BlogList blogs={blogs} user={user} setUser={setUser} setBlogs={setBlogs} setMessage={setMessage} />
       }
     </>
   )

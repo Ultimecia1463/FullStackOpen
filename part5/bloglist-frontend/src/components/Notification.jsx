@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect } from 'react'
 
 const Notification = ({ message, setMessage }) => {
   useEffect(() => {
@@ -15,7 +15,7 @@ const Notification = ({ message, setMessage }) => {
     return null
   }
 
-  const type = message.startsWith("success") ? "success" : "error"
+  const type = message.startsWith('success') ? 'success' : 'error'
 
   return (
     <div className={type}>

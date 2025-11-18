@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState } from 'react'
 
 const Blog = ({ user, blog, updateBlog, deleteBlog }) => {
 
@@ -52,7 +52,7 @@ const Blog = ({ user, blog, updateBlog, deleteBlog }) => {
           {blog.user.username === user.username && <button onClick={handleDelete}>remove</button>}
         </div>
       }
-    </div>  
+    </div>
   )
 }
 

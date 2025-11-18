@@ -1,10 +1,10 @@
-import { useRef } from "react"
-import Blog from "./Blog"
+import { useRef } from 'react'
+import Blog from './Blog'
 import blogService from '../services/blogs'
-import Togglable from "./Togglable"
-import BlogForm from "./BlogForm"
+import Togglable from './Togglable'
+import BlogForm from './BlogForm'
 
-const BlogList = ({blogs, user, setUser, setBlogs, setMessage}) => {
+const BlogList = ({ blogs, user, setUser, setBlogs, setMessage }) => {
   blogs.sort((a, b) => b.likes - a.likes)
 
   const blogFormRef = useRef()
@@ -18,7 +18,7 @@ const BlogList = ({blogs, user, setUser, setBlogs, setMessage}) => {
         setMessage(`success a new blog ${returnedBlog.title} by ${returnedBlog.author} added`)
         setTimeout(() => {
           setMessage(null)
-        }, 5000);
+        }, 5000)
       })
   }
 
@@ -26,7 +26,7 @@ const BlogList = ({blogs, user, setUser, setBlogs, setMessage}) => {
     blogService
       .update(id, updatedBlog)
       .then(returnedBlog => {
-        setBlogs(blogs.map(b => b.id !== id ? b : {...b, likes: returnedBlog.likes}))
+        setBlogs(blogs.map(b => b.id !== id ? b : { ...b, likes: returnedBlog.likes }))
       })
     blogs.sort((a, b) => b.likes - a.likes)
   }
@@ -40,7 +40,7 @@ const BlogList = ({blogs, user, setUser, setBlogs, setMessage}) => {
     <>
       <h2>blogs</h2>
       <p>{user.username} logged in <button onClick={
-        ()=>{
+        () => {
           setUser(null)
           window.localStorage.clear()
         }

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-const LoginForm = ({login}) => {
+const LoginForm = ({ login }) => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
 
@@ -13,7 +13,7 @@ const LoginForm = ({login}) => {
     login(userObject)
     setUsername('')
     setPassword('')
-  
+
   }
 
   return (
@@ -26,7 +26,7 @@ const LoginForm = ({login}) => {
             <input
               type='text'
               value={username}
-              onChange={({target})=> setUsername(target.value)}
+              onChange={({ target }) => setUsername(target.value)}
             />
           </label>
         </div>
@@ -36,7 +36,7 @@ const LoginForm = ({login}) => {
             <input
               type='password'
               value={password}
-              onChange={({target})=> setPassword(target.value)}
+              onChange={({ target }) => setPassword(target.value)}
             />
           </label>
         </div>
