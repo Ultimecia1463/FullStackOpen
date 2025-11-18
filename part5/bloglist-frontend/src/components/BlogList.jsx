@@ -5,6 +5,7 @@ import Togglable from "./Togglable"
 import BlogForm from "./BlogForm"
 
 const BlogList = ({blogs, user, setUser, setBlogs, setMessage}) => {
+  blogs.sort((a, b) => b.likes - a.likes)
 
   const blogFormRef = useRef()
 
@@ -27,6 +28,7 @@ const BlogList = ({blogs, user, setUser, setBlogs, setMessage}) => {
       .then(returnedBlog => {
         setBlogs(blogs.map(b => b.id !== id ? b : {...b, likes: returnedBlog.likes}))
       })
+    blogs.sort((a, b) => b.likes - a.likes)
   }
 
   return (
