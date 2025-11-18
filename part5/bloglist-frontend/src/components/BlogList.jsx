@@ -25,7 +25,7 @@ const BlogList = ({blogs, user, setUser, setBlogs, setMessage}) => {
     blogService
       .update(id, updatedBlog)
       .then(returnedBlog => {
-        setBlogs(blogs.map(b => b.id !== id ? b : returnedBlog))
+        setBlogs(blogs.map(b => b.id !== id ? b : {...b, likes: returnedBlog.likes}))
       })
   }
 
