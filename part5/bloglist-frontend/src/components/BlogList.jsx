@@ -31,6 +31,11 @@ const BlogList = ({blogs, user, setUser, setBlogs, setMessage}) => {
     blogs.sort((a, b) => b.likes - a.likes)
   }
 
+  const deleteBlog = (id) => {
+    blogService.deleteOne(id)
+    setBlogs(blogs.filter(b => b.id !== id))
+  }
+
   return (
     <>
       <h2>blogs</h2>
@@ -44,7 +49,7 @@ const BlogList = ({blogs, user, setUser, setBlogs, setMessage}) => {
         <BlogForm addBlog={addBlog} />
       </Togglable>
       {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} updateBlog={updateBlog} />
+        <Blog key={blog.id} user={user} blog={blog} updateBlog={updateBlog} deleteBlog={deleteBlog} />
       )}
     </>
   )
