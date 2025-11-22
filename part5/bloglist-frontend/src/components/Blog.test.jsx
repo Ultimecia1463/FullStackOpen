@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import Blog from './Blog'
 
 describe('<Blog />', () => {
+  const updateBlog = vi.fn()
   let container
 
   beforeEach(() => {
@@ -16,7 +17,7 @@ describe('<Blog />', () => {
       likes: 114514,
       user: { name: 'This is user.name' }
     }
-    container = render(<Blog user={user} blog={blog} />).container
+    container = render(<Blog user={user} blog={blog} updateBlog={updateBlog} />).container
   })
 
   test('Blog renders title and author by default', async () => {
@@ -39,5 +40,17 @@ describe('<Blog />', () => {
     const div = container.querySelector('.blog')
     expect(div).toHaveTextContent('This is url')
     expect(div).toHaveTextContent(114514)
+  })
+
+  test('Blog calls updateBlog twice if clicking like twice', async () => {
+    const user = userEvent.setup()
+    const viewButton = screen.getByText('view')
+    await user.click(viewButton)
+
+    const likeButton = screen.getByText('like')
+    await user.click(likeButton)
+    await user.click(likeButton)
+
+    expect(updateBlog.mock.calls).toHaveLength(2)
   })
 })
