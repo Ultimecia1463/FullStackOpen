@@ -64,5 +64,28 @@ describe('Blog app', () => {
       await page.getByRole('button', { name: 'remove' }).click()
       await expect(page.getByText('blog title blog author')).not.toBeVisible()
     })
+
+    test('user who added the blog sees the blog delete button', async ({ page}) => {
+      await createBlog(page, 'blog title', 'blog author', 'blog url')
+      await expect(page.getByText('blog title blog author')).toBeVisible()
+      await page.getByRole('button', { name: 'view' }).click()
+      await expect(page.getByRole('button', { name: 'remove' })).toBeVisible()
+    })
+
+    test('user who did not add the blog does not see the blogs delete button', async ({ page, request }) => {
+      await createBlog(page, 'blog title', 'blog author', 'blog url')
+      await request.post('/api/users/register', {
+        data: {
+          name: 'someone',
+          username: 'someuser',
+          password: 'somepassword'
+        }
+      })
+      await page.getByRole('button', { name: 'logout' }).click()
+      await loginWith(page, 'someuser', 'somepassword')
+      await expect(page.getByText('blog title blog author')).toBeVisible()
+      await page.getByRole('button', { name: 'view' }).click()
+      await expect(page.getByRole('button', { name: 'remove' })).not.toBeVisible()
+    })    
   })
 })
