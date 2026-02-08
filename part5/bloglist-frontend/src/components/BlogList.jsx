@@ -39,7 +39,7 @@ const BlogList = ({ blogs, user, setUser, setBlogs, setMessage }) => {
   return (
     <>
       <h2>blogs</h2>
-      <p>{user.username} logged in <button onClick={
+      <p>{user.name} logged in <button onClick={
         () => {
           setUser(null)
           window.localStorage.clear()
