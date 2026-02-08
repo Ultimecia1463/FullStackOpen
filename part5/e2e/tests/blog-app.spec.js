@@ -43,6 +43,7 @@ describe('Blog app', () => {
       await createBlog(page, 'blog title', 'blog author', 'blog url')
       await expect(page.getByText('blog title blog author')).toBeVisible()
     })
+
     test('a blog can be liked', async ({ page }) => {
       await createBlog(page, 'blog title', 'blog author', 'blog url')
       await expect(page.getByText('blog title blog author')).toBeVisible()
@@ -50,6 +51,18 @@ describe('Blog app', () => {
       await expect(page.getByText('likes 0')).toBeVisible()
       await page.getByRole('button', { name: 'like' }).click()
       await expect(page.getByText('likes 1')).toBeVisible()
+    })
+
+    test('a blog can be deleted', async ({ page }) => {
+      await createBlog(page, 'blog title', 'blog author', 'blog url')
+      await expect(page.getByText('blog title blog author')).toBeVisible()
+      await page.getByRole('button', { name: 'view' }).click()
+      page.once('dialog', dialog =>{
+        expect(dialog.message()).toBe('Remove blog blog title by blog author')
+        dialog.accept()
+      })
+      await page.getByRole('button', { name: 'remove' }).click()
+      await expect(page.getByText('blog title blog author')).not.toBeVisible()
     })
   })
 })

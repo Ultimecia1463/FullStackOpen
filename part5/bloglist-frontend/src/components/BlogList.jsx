@@ -5,7 +5,8 @@ import Togglable from './Togglable'
 import BlogForm from './BlogForm'
 
 const BlogList = ({ blogs, user, setUser, setBlogs, setMessage }) => {
-  blogs.sort((a, b) => b.likes - a.likes)
+
+  const sortedBlogs = [...blogs].sort((a, b) => b.likes - a.likes)
 
   const blogFormRef = useRef()
 
@@ -14,42 +15,50 @@ const BlogList = ({ blogs, user, setUser, setBlogs, setMessage }) => {
     blogService
       .create(blogObject)
       .then((returnedBlog) => {
-        setBlogs(blogs.concat(returnedBlog))
+        setBlogs(prev => prev.concat(returnedBlog))
         setMessage(`success a new blog ${returnedBlog.title} by ${returnedBlog.author} added`)
-        setTimeout(() => {
-          setMessage(null)
-        }, 5000)
+        setTimeout(() => setMessage(null), 5000)
       })
   }
 
   const updateBlog = (id, updatedBlog) => {
-    blogService
-      .update(id, updatedBlog)
+    blogService.update(id, updatedBlog)
       .then(returnedBlog => {
-        setBlogs(blogs.map(b => b.id !== id ? b : { ...b, likes: returnedBlog.likes }))
+        setBlogs(prev =>
+          prev.map(b => b.id !== id ? b : { ...b, likes: returnedBlog.likes })
+        )
       })
-    blogs.sort((a, b) => b.likes - a.likes)
   }
 
   const deleteBlog = (id) => {
     blogService.deleteOne(id)
-    setBlogs(blogs.filter(b => b.id !== id))
+    setBlogs(prev => prev.filter(b => b.id !== id))
   }
 
   return (
     <>
       <h2>blogs</h2>
-      <p>{user.name} logged in <button onClick={
-        () => {
+
+      <p>
+        {user.name} logged in
+        <button onClick={() => {
           setUser(null)
           window.localStorage.clear()
-        }
-      }>logout</button></p>
+        }}>logout</button>
+      </p>
+
       <Togglable buttonLabel="create new blog" ref={blogFormRef}>
         <BlogForm addBlog={addBlog} />
       </Togglable>
-      {blogs.map(blog =>
-        <Blog key={blog.id} user={user} blog={blog} updateBlog={updateBlog} deleteBlog={deleteBlog} />
+
+      {sortedBlogs.map(blog =>
+        <Blog
+          key={blog.id}
+          user={user}
+          blog={blog}
+          updateBlog={updateBlog}
+          deleteBlog={deleteBlog}
+        />
       )}
     </>
   )

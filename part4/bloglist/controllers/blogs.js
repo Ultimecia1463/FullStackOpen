@@ -12,14 +12,18 @@ blogsRouter.get('/', async (request, response, next) => {
 
 blogsRouter.post('/', userExtractor, async (request, response, next) => {
   const user = request.user
-  const blog = new Blog(request.body)
-  console.log('user ' + request.user)
-  blog.user = user._id
+  const blog = new Blog({
+    ...request.body,
+    user: user._id,
+    likes: request.body.likes || 0
+  })
 
-  const result = await blog.save()
-  user.blogs = user.blogs.concat(result._id)
+  const savedBlog = await blog.save()
+  user.blogs = user.blogs.concat(savedBlog._id)
   await user.save()
-  response.status(201).json(result)
+
+  const populatedBlog = await Blog.findById(savedBlog._id).populate('user', { username: 1, name: 1 })
+  response.status(201).json(populatedBlog)
 })
 
 blogsRouter.delete('/:id', userExtractor, async (request, response, next) => {
