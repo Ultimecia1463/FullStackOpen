@@ -86,6 +86,31 @@ describe('Blog app', () => {
       await expect(page.getByText('blog title blog author')).toBeVisible()
       await page.getByRole('button', { name: 'view' }).click()
       await expect(page.getByRole('button', { name: 'remove' })).not.toBeVisible()
-    })    
+    })
+    
+    test('blogs are arranged in the order according to the likes', async ({ page }) => {
+      await createBlog(page, 'blog1', 'author1', 'url1')
+      await createBlog(page, 'blog2', 'author2', 'url2')
+      await createBlog(page, 'blog3', 'author3', 'url3')
+
+      await page.getByText('blog1 author1').getByRole('button', { name: 'view' }).click()
+      await page.getByText('blog2 author2').getByRole('button', { name: 'view' }).click()
+      await page.getByText('blog3 author3').getByRole('button', { name: 'view' }).click()
+
+      const likebuttons = await page.getByRole('button',{ name: 'like' }).all()
+      
+      for (const button of likebuttons) {
+        const randomClicks = Math.floor(Math.random() * 9) + 1
+
+        for (let i = 0; i < randomClicks; i++) {
+          await button.click()
+        }
+      }
+
+      const likes = await page.getByText(/likes/).allTextContents()
+      const likesCount = likes.map(str => Number(str.split(" ")[1]))
+      const isDescending = likesCount.every((v, i) => i === 0 || v <= likesCount[i - 1])
+      expect(isDescending).toBeTruthy()
+    })
   })
 })
